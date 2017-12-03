@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/FliiFe/giac-discord#readme",
   "dependencies": {
+    "asciimath-to-latex": "^0.3.2",
     "discord.js": "^11.2.1"
   }
 }
