@@ -1,0 +1,29 @@
+{
+  "name": "cas-discord",
+  "version": "0.0.1",
+  "description": "A bot which provides cas functionalities",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FliiFe/giac-discord.git"
+  },
+  "keywords": [
+    "giac",
+    "maths",
+    "cas",
+    "discord",
+    "bot"
+  ],
+  "author": "Théophile Cailliau (theophile.cailliau@gmail.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/FliiFe/giac-discord/issues"
+  },
+  "homepage": "https://github.com/FliiFe/giac-discord#readme",
+  "dependencies": {
+    "discord.js": "^11.2.1"
+  }
+}
