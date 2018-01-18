@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
 const bot = new Discord.Client();
 const {readFileSync} = require('fs');
-const {token} = JSON.parse(readFileSync('./token.json'));
+const {token, prefix} = JSON.parse(readFileSync('./token.json'));
 const giac = require('./giac.js').cwrap('caseval', 'string', ['string']);
 const { post } = require('axios');
 const api = 'http://rtex.probablyaweb.site/api/v2';
@@ -10,7 +10,7 @@ bot.on('ready', () => console.log('ready !'));
 
 bot.on('message', msg => {
     if(msg.author.id === bot.user.id) return;
-    if(msg.content[0] !== '#' || (msg.channel instanceof Discord.DMChannel)) return;
+    if(msg.content[0] !== prefix || (msg.channel instanceof Discord.DMChannel)) return;
     msg.channel.startTyping();
     if(msg.content.indexOf('giac') <= 1) {
         const command = msg.content.split(' ').slice(1).join(' ');
@@ -76,7 +76,8 @@ const giaclatextemplate = (input, output) => `
     \\noindent\\texttt{\\detokenize{${input}}}\\\\
     \\rule[0.3\\baselineskip]{\\linewidth}{0.5pt}
     \\begin{flalign*}
-        &&${output}
+    &&${output.replace(/(\\left)?(\[|\\{|\()/g, match => match.indexOf('\\left') === 0 ? match : '\\left' + match)
+        .replace(/(\\right)?(]|\\}|\))/g, match => match.indexOf('\\right') === 0 ? match : '\\right' + match)}
     \\end{flalign*}
 \\end{shaded}
 
@@ -104,7 +105,7 @@ const giachelplatextemplace = (syntax, help, seealso, examples) => `
 \\begin{shaded}
     \\noindent\\texttt{\\detokenize{${syntax}}}\\\\
     \\rule[0.3\\baselineskip]{\\linewidth}{0.5pt}
-\\noindent ${help}\\\\[1em]
+\\noindent \\detokenize{${help}}\\\\[1em]
 \\textbf{See also:} \\texttt{\\detokenize{${seealso}}}\\\\[1em]
 \\textbf{Examples: }
 \\begin{verbatim}
