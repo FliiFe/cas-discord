@@ -9,10 +9,10 @@ const api = 'http://rtex.probablyaweb.site/api/v2';
 bot.on('ready', () => console.log('ready !'));
 
 bot.on('message', msg => {
-    if(msg.author.id === bot.user.id) return;
-    if(msg.content[0] !== prefix || (msg.channel instanceof Discord.DMChannel)) return;
-    msg.channel.startTyping();
-    if(msg.content.indexOf('giac') <= 1) {
+    if(msg.author.bot) return;
+    if(msg.content[0] !== prefix && !(msg.channel instanceof Discord.DMChannel)) return;
+    if([0,1].indexOf(msg.content.indexOf('giac')) >= 0) {
+        msg.channel.startTyping();
         const command = msg.content.split(' ').slice(1).join(' ');
         if(command.indexOf('help') === 0) {
             helpCommand(msg, command);
