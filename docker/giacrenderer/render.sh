@@ -85,7 +85,7 @@ for f in *.dvi; do
     dvipng -D 200 -bg 'rgb 0.1725 0.1843 0.2' -o "${f/.dvi/}-%01d.png" "$f" 1>&2
 done
 
-mogrify ./*.png -bordercolor '#2c2f33' -border 50x50 1>&2
+mogrify -bordercolor '#2c2f33' -border 50x50 ./*.png 1>&2
 
 for res in *.png; do
     base64 "$res" | tr -d '\n'
