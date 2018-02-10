@@ -1,20 +1,20 @@
 const Discord = require('discord.js');
 const bot = new Discord.Client();
-const {readFileSync} = require('fs');
-const {token, prefix} = JSON.parse(readFileSync('./token.json'));
-const giac = require('./giac.js').cwrap('caseval', 'string', ['string']);
+const { readFileSync } = require('fs');
+const { token, prefix } = JSON.parse(readFileSync('./token.json'));
+const exec = require('util').promisify(require('child_process').exec);
 const { post } = require('axios');
 const api = 'http://rtex.probablyaweb.site/api/v2';
 
 bot.on('ready', () => console.log('ready !'));
 
 bot.on('message', msg => {
-    if(msg.author.bot) return;
-    if(msg.content[0] !== prefix && !(msg.channel instanceof Discord.DMChannel)) return;
-    if([0,1].indexOf(msg.content.indexOf('giac')) >= 0) {
+    if (msg.author.bot) return;
+    if (msg.content[0] !== prefix && !(msg.channel instanceof Discord.DMChannel)) return;
+    if ([0, 1].indexOf(msg.content.indexOf('giac')) >= 0) {
         msg.channel.startTyping();
         const command = msg.content.split(' ').slice(1).join(' ');
-        if(command.indexOf('help') === 0) {
+        if (command.indexOf('help') === 0) {
             helpCommand(msg, command);
         } else {
             giacCommand(msg, command);
@@ -22,8 +22,9 @@ bot.on('message', msg => {
     }
 });
 
-function helpCommand(msg, command) {
-    const [help, syntax, seealso, examples] = giac(command).slice(1, -1).split('<br>');
+async function helpCommand(msg, command) {
+    const output = await giacexec(command);
+    const [help, syntax, seealso, examples] = output.split('<br>');
     const latex = giachelplatextemplace(syntax,
         help.split(' : ').slice(1).join(' '),
         seealso,
@@ -31,32 +32,43 @@ function helpCommand(msg, command) {
     sendLatex(msg, latex);
 }
 
-function giacCommand(msg, command) {
-    const output = giac(`latex(${command})`).slice(1,-1);
+async function giacCommand(msg, command) {
+    const output = await giacexec(`latex(${command})`);
     const latex = giaclatextemplate(command, output);
     sendLatex(msg, latex);
 }
 
-function sendLatex(msg, latex) {
+
+async function giacexec(input) {
+    // Use environment variable to let bash do the sanitizing
+    const { stdout } = await exec('docker run discord-cas/giac "$USER_INPUT"', { env: { USER_INPUT: input } });
+    // Remove doublequotes and ending newline
+    return stdout.slice(1, -2);
+}
+
+async function renderLatex(code) {
+    const { rawOutput } = await exec('docker run discord-cas/latexrenderer "$LATEX"', {env: {LATEX: code}});
+}
+
+async function sendLatex(msg, latex) {
     console.log(latex);
-    post(api, {
+    const result = await post(api, {
         code: latex,
         format: 'png'
-    }).then(result => {
-        console.log('------ status:', result.data.status);
-        console.log('------ pdflatex output:', result.data.log);
-        if(result.data.status === 'success'){
-            msg.channel.send('', new Discord.Attachment(api + '/' + result.data.filename, 'giac.png'));
-        } else {
-            msg.channel.send('Error rendering the code');
-        }
-        msg.channel.stopTyping();
-    }).catch(error => console.trace(error));
+    });
+    console.log('------ status:', result.data.status);
+    if (result.data.status === 'success') {
+        await msg.channel.send('', new Discord.Attachment(api + '/' + result.data.filename, 'giac.png'));
+    } else {
+        // console.log('------ pdflatex output:', result.data.log);
+        await msg.channel.send('Error rendering the code');
+    }
+    msg.channel.stopTyping();
 }
 
 bot.login(token);
 
-const giaclatextemplate = (input, output) => `
+const giaclatextemplate2 = (input, output) => `
 \\documentclass{article}
 
 \\usepackage[a5paper]{geometry}
@@ -81,6 +93,25 @@ const giaclatextemplate = (input, output) => `
     \\end{flalign*}
 \\end{shaded}
 
+
+\\pagenumbering{gobble}
+\\end{document}
+`;
+
+const giaclatextemplate = (input, output) => `
+\\documentclass{article}
+
+\\usepackage[a5paper]{geometry}
+\\usepackage{color}
+\\usepackage{xcolor}
+\\usepackage{amsmath}
+\\usepackage{framed}
+\\usepackage{pst-plot,color}
+\\usepackage{graphicx}
+
+\\begin{document}
+
+${output}
 
 \\pagenumbering{gobble}
 \\end{document}
@@ -117,3 +148,8 @@ ${examples}
 \\pagenumbering{gobble}
 \\end{document}
 `;
+
+process.on('uncaughtException', e => {
+    console.log('Uncaught Exception...');
+    console.trace(e);
+});
