@@ -47,6 +47,11 @@ runcommands() {
     # Iterate over commands (linefeed-separated)
     while read -r line; do
         latexcommand "$line" >"result$n.tex"
+        latex "result$n.tex" 1>&2
+        dvipng -D 200 -bg 'rgb 0.1725 0.1843 0.2' -o "result$n-%01d.png" "result$n.dvi" 1>&2
+        mogrify -bordercolor '#2c2f33' -border 50x50 ./result$n-*.png 1>&2
+        base64 result$n-*.png | tr -d '\n'
+        echo
         n=$((n+1))
     done <commands
     echo "quit" >> input
@@ -75,19 +80,4 @@ latexcommand() {
     echo "\\pagenumbering{gobble}\\end{document}"
 }
 
-# Execute and pipe output to result.tex
-runcommands | tee result.tex 1>&2
-
-# cat result.tex
-
-find . -type f -and -name 'result*.tex' -exec latex \{\} \; 1>&2
-for f in *.dvi; do
-    dvipng -D 200 -bg 'rgb 0.1725 0.1843 0.2' -o "${f/.dvi/}-%01d.png" "$f" 1>&2
-done
-
-mogrify -bordercolor '#2c2f33' -border 50x50 ./*.png 1>&2
-
-for res in *.png; do
-    base64 "$res" | tr -d '\n'
-    echo
-done
+runcommands
