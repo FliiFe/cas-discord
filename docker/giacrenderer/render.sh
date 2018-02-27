@@ -7,6 +7,7 @@ cd /var/workspace || exit
 # Clean up commands
 sed -i -e 's/^[ \t]*//g' commands
 sed -i -e 's/[ \t]*$//g' commands
+echo >> commands
 
 # Hang until `promt#>` has appeared
 waitforprompt() {
