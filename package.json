@@ -4,7 +4,9 @@
   "description": "A bot which provides cas functionalities",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "docker": "cd ./docker/giacrenderer && docker build . -t discord-cas/giacrenderer:latest",
+    "forever": "forever start index.js",
+    "nodemon": "nodemon index.js"
   },
   "repository": {
     "type": "git",

@@ -10,12 +10,12 @@ bot.on('ready', () => console.log('ready !'));
 
 bot.on('message', msg => {
     if (msg.author.bot) return;
-    if (msg.content[0] !== prefix && !(msg.channel instanceof Discord.DMChannel)) return;
-    if ([0, 1].indexOf(msg.content.indexOf('giac')) >= 0) {
+    if (msg.content.indexOf('<@386967045985665055>') !== 0 && !(msg.channel instanceof Discord.DMChannel)) return;
+    // if ([0, 1].indexOf(msg.content.indexOf('giac')) >= 0) {
         msg.channel.startTyping();
         const commands = msg.content.split(' ').slice(1).join(' ');
         giacCommands(msg, commands);
-    }
+    // }
 });
 
 async function giacCommands(msg, commands) {
