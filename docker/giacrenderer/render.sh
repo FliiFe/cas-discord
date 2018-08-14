@@ -18,24 +18,24 @@ waitforprompt() {
 
 latexheader() {
     echo \
-'\documentclass{article}
+        '\documentclass{article}
 
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
-\usepackage[a5paper]{geometry}
-\usepackage{color}
-\usepackage{xcolor}
-\usepackage{amsmath}
-\usepackage{framed}
-\usepackage{listings}
+    \usepackage[utf8]{inputenc}
+    \usepackage[T1]{fontenc}
+    \usepackage[a5paper]{geometry}
+    \usepackage{color}
+    \usepackage{xcolor}
+    \usepackage{amsmath}
+    \usepackage{framed}
+    \usepackage{listings}
 
-\begin{document}
+    \begin{document}
+    \pagenumbering{gobble}
 
-\definecolor{tc}{HTML}{fafafa}
-\color{tc}
-% \definecolor{shadecolor}{HTML}{2c2f33}
+    \definecolor{tc}{HTML}{fafafa}
+    \color{tc}
 
-\lstset{basicstyle=\ttfamily,breaklines=true}'
+    \lstset{basicstyle=\ttfamily,breaklines=true}'
 }
 
 # Separate function to be able to pipe output into a file
@@ -47,7 +47,7 @@ runcommands() {
     n=1
     # Iterate over commands (linefeed-separated)
     while read -r line; do
-        latexcommand "$line" >"result$n.tex"
+        latexcommand "$line" | tee "result$n.tex" 1>&2
         latex "result$n.tex" 1>&2
         dvipng -D 200 -bg 'rgb 0.1725 0.1843 0.2' -o "result$n-%01d.png" "result$n.dvi" 1>&2
         mogrify -bordercolor '#2c2f33' -border 50x50 ./result$n-*.png 1>&2
@@ -76,9 +76,11 @@ latexcommand() {
         value=$(echo "$content" | sed s/^verbatim://g)
         echo "\\begin{center}\\texttt{\\detokenize{$value}}\\end{center}"
     else
-        echo "$content" | sed s/^latex://g
+        echo "$content" | sed s/^latex://g \
+            | perl -pe 's/(?<!\\left)((?<!\\)\[|\\\{|\()/\\left\1/g' \
+            | perl -pe 's/(?<!\\right)((?<!\\)\]|\\\}|\))/\\right\1/g'
     fi
-    echo "\\pagenumbering{gobble}\\end{document}"
+    echo "\\end{document}"
 }
 
 runcommands
