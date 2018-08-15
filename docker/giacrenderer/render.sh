@@ -73,7 +73,7 @@ latexcommand() {
     content=$(tr -dc '[:print:]' <output | sed 's/prompt#>//g' | sed -r s/^verbatim://g)
     type=$(echo "$content" | head -n 1 | cut -d: -f1)
     if [ "$type" = "verbatim" ]; then
-        value=$(echo "$content" | sed s/^verbatim://g)
+        value=$(echo "$content" | sed s/^verbatim://g | sed 's/%/\\%/g')
         echo "\\begin{center}\\texttt{\\detokenize{$value}}\\end{center}"
     else
         echo "$content" | sed s/^latex://g \
