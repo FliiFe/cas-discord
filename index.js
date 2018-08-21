@@ -61,7 +61,10 @@ async function giacCommands(msg, commands) {
 }
 
 async function sendPicture(msg, buffer) {
-    await msg.channel.send('', new Discord.Attachment(buffer, 'giac.png'));
+    if(buffer.length <= 20)
+        await msg.channel.send('Error while processing input !');
+    else
+        await msg.channel.send('', new Discord.Attachment(buffer, 'giac.png'));
     msg.channel.stopTyping();
 }
 
