@@ -27,6 +27,9 @@ bot.on('message', msg => {
 async function giacCommands(msg, commands) {
     const giacrenderer = spawn('docker', [
         'run',
+        '--rm',
+        '--network',
+        'none',
         '-i',
         'discord-cas/giacrenderer'
     ]);
