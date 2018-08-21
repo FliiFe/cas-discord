@@ -1,9 +1,7 @@
 const Discord = require('discord.js');
 const bot = new Discord.Client();
-const { readFileSync } = require('fs');
-const { token, prefix } = require('./token');
+const { token } = require('./token');
 const { spawn } = require('child_process');
-const { post } = require('axios');
 
 let prefixes;
 
@@ -13,18 +11,24 @@ bot.on('ready', () => {
 });
 
 bot.on('message', msg => {
+    // don't respond to self
     if (msg.author.bot) return;
+    // check if prefix is correct or that we are in a DM channel
     if (
         prefixes.every(p => msg.content.indexOf(p) !== 0) &&
         !(msg.channel instanceof Discord.DMChannel)
     )
         return;
+    // Run !
     msg.channel.startTyping();
     const commands = prefixes.reduce((s, p) => s.replace(p, ''), msg.content);
     giacCommands(msg, commands);
 });
 
 async function giacCommands(msg, commands) {
+    // --rm for cleanup (no need to keep fs after the image is run)
+    // --network none because there is no need for network
+    // -i because we send the data via stdin
     const giacrenderer = spawn('docker', [
         'run',
         '--rm',
