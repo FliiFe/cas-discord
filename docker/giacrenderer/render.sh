@@ -1,13 +1,19 @@
 #!/bin/bash
 
-# One command per line
-sed s/\;/\\n/g >/var/workspace/commands
+cat - > /var/workspace/commands
 cd /var/workspace || exit
+
+# One command per line
+awk -v ORS="    " '1' commands >commands2
+mv commands2 commands
+sed -i s/\;/\\n/g commands
 
 # Clean up commands
 sed -i -e 's/^[ \t]*//g' commands
 sed -i -e 's/[ \t]*$//g' commands
 echo >> commands
+
+cat commands 1>&2
 
 # Hang until `promt#>` has appeared
 waitforprompt() {
@@ -18,21 +24,23 @@ waitforprompt() {
 
 latexheader() {
     echo \
-        '\documentclass{article}
+    '\documentclass{article}
 
     \usepackage[utf8]{inputenc}
     \usepackage[T1]{fontenc}
     \usepackage[a5paper]{geometry}
     \usepackage{color}
-    \usepackage{xcolor}
+    % \usepackage{xcolor}
     \usepackage{amsmath}
     \usepackage{framed}
     \usepackage{listings}
+    % \usepackage{pstricks}
+    % \usepackage{auto-pst-pdf}
 
     \begin{document}
     \pagenumbering{gobble}
 
-    \definecolor{tc}{HTML}{fafafa}
+    \definecolor{tc}{rgb}{0.980, 0.980, 0.980}
     \color{tc}
 
     \lstset{basicstyle=\ttfamily,breaklines=true}'
@@ -47,8 +55,9 @@ runcommands() {
     n=1
     # Iterate over commands (linefeed-separated)
     while read -r line; do
-        latexcommand "$line" | tee "result$n.tex" 1>&2
-        latex "result$n.tex" 1>&2
+        latexcommand "$line" | tee "result$n.tex" 1>/dev/null #1>&2
+        latex -shell-escape "result$n.tex" 1>&2
+        # pdflatex --shell-escape --enable-write18 "result$n.tex" 1>&2
         dvipng -D 200 -bg 'rgb 0.1725 0.1843 0.2' -o "result$n-%01d.png" "result$n.dvi" 1>&2
         mogrify -bordercolor '#2c2f33' -border 50x50 ./result$n-*.png 1>&2
         base64 result$n-*.png | tr -d '\n'
