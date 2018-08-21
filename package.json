@@ -26,7 +26,6 @@
   },
   "homepage": "https://github.com/FliiFe/giac-discord#readme",
   "dependencies": {
-    "axios": "^0.17.1",
     "discord.js": "^11.2.1"
   }
 }
