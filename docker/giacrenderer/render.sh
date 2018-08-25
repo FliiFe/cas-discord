@@ -67,27 +67,47 @@ runcommands() {
     echo "quit" >> input
 }
 
+# Get the output of one command
+runcommand() {
+    : > output
+    echo "$1" >> input
+    # Wait for prompt to return
+    waitforprompt
+    echo $(tr -dc '[:print:]' <output | sed 's/prompt#>//g' | sed -r s/^verbatim://g)
+}
+
+# Get the latex representation of the nonevaluated input
+get_noeval() {
+    cmd="$1"
+    eval_level=$(runcommand "eval_level()" | grep -o '[0-9]*') # Get only the number
+    runcommand "eval_level(0)" >/dev/null
+    result=$(runcommand "$cmd")
+    # restore eval level
+    runcommand "eval_level(${eval_level})" >/dev/null
+    echo $result
+}
+
+print_latex_output() {
+    echo "$@" | sed s/^latex://g \
+        | perl -pe 's/(?<!\\left)((?<!\\)\[|\\\{|\()/\\left\1/g' \
+        | perl -pe 's/(?<!\\right)((?<!\\)\]|\\\}|\))/\\right\1/g'
+}
+
 latexcommand() {
     latexheader
     line=$1
     echo "Processing command: $line" 1>&2
-    # Empty out output file
-    : > output
-    echo "$line" >> input
-    # Wait for prompt to return
-    waitforprompt
-    echo  "\\begin{lstlisting}"
-    echo "$line"
-    echo "\\end{lstlisting}\\rule[0.3\\baselineskip]{\\linewidth}{0.5pt}"
-    content=$(tr -dc '[:print:]' <output | sed 's/prompt#>//g' | sed -r s/^verbatim://g)
+    content=$(runcommand "$line")
+    # echo "\\begin{lstlisting}"
+    print_latex_output "$(get_noeval "$line")"
+    # echo "\\end{lstlisting}\\rule[0.3\\baselineskip]{\\linewidth}{0.5pt}"
+    echo "\\rule[0.3\\baselineskip]{\\linewidth}{0.5pt}"
     type=$(echo "$content" | head -n 1 | cut -d: -f1)
     if [ "$type" = "verbatim" ]; then
         value=$(echo "$content" | sed s/^verbatim://g | sed 's/%/\\%/g')
         echo "\\begin{center}\\texttt{\\detokenize{$value}}\\end{center}"
     else
-        echo "$content" | sed s/^latex://g \
-            | perl -pe 's/(?<!\\left)((?<!\\)\[|\\\{|\()/\\left\1/g' \
-            | perl -pe 's/(?<!\\right)((?<!\\)\]|\\\}|\))/\\right\1/g'
+        print_latex_output "$content"
     fi
     echo "\\end{document}"
 }
