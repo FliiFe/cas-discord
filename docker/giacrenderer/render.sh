@@ -90,7 +90,8 @@ get_noeval() {
 print_latex_output() {
     echo "$@" | sed s/^latex://g \
         | perl -pe 's/(?<!\\left)((?<!\\)\[|\\\{|\()/\\left\1/g' \
-        | perl -pe 's/(?<!\\right)((?<!\\)\]|\\\}|\))/\\right\1/g'
+        | perl -pe 's/(?<!\\right)((?<!\\)\]|\\\}|\))/\\right\1/g' \
+        | perl -pe "s/'/\\\\,\\\\!'/g" # Dirty hack to prevent ' from creating latex error (double superscript)
 }
 
 latexcommand() {
@@ -99,7 +100,7 @@ latexcommand() {
     echo "Processing command: $line" 1>&2
     content=$(runcommand "$line")
     # echo "\\begin{lstlisting}"
-    print_latex_output "$(get_noeval "$line")"
+    print_latex_output "$(get_noeval "$line")" | tee /dev/stderr
     # echo "\\end{lstlisting}\\rule[0.3\\baselineskip]{\\linewidth}{0.5pt}"
     echo "\\rule[0.3\\baselineskip]{\\linewidth}{0.5pt}"
     type=$(echo "$content" | head -n 1 | cut -d: -f1)
