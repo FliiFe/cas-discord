@@ -7,6 +7,7 @@ let prefixes;
 
 bot.on('ready', () => {
     prefixes = [`<@${bot.user.id}> `, '@giac '];
+    bot.user.setGame('@CAS help')
     console.log('ready !');
 });
 
@@ -22,7 +23,8 @@ bot.on('message', msg => {
     // Run !
     msg.channel.startTyping();
     const commands = prefixes.reduce((s, p) => s.replace(p, ''), msg.content);
-    giacCommands(msg, commands);
+    if(commands == 'help') sendHelp(msg);
+    else giacCommands(msg, commands);
 });
 
 async function giacCommands(msg, commands) {
@@ -73,6 +75,10 @@ async function sendPicture(msg, buffer) {
     else
         await msg.channel.send('', new Discord.Attachment(buffer, 'giac.png'));
     msg.channel.stopTyping();
+}
+
+function sendHelp(msg) {
+    msg.author.send("Please see http://www-fourier.ujf-grenoble.fr/~parisse/giac/doc/en/cascmd_en/ for full reference. Version française: http://www-fourier.ujf-grenoble.fr/~parisse/giac/doc/fr/cascmd_fr/");
 }
 
 bot.login(token);
