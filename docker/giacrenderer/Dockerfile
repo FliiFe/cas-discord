@@ -19,13 +19,13 @@ RUN tar zxf giac*.tar.gz && mv giac-* giac
 WORKDIR /var/workspace/giac
 
 RUN sed -i "/curlbuild/d" ./src/misc.cc
-RUN ./configure && make -j9
+RUN ./configure && make -j$(nproc)
 
 COPY ./patches /var/workspace/giac/patches
 
 RUN for i in patches/*; do patch -p1 <$i; done
 # Two different makes to keep first make's cache across docker builds
-RUN make -j9
+RUN make -j$(nproc)
 RUN make install
 
 WORKDIR /var/workspace
