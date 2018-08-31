@@ -16,8 +16,8 @@ This can also be invoked by using `@CAS` (or mention whatever user the bot is ru
 
 ![zeros(x^2-x-2,x)](/screenshots/giac1.png?raw=true)
 ![czeros(x^2+x+1)](/screenshots/giac2.png?raw=true)
-![texpand(cos(a+b))](/screenshots/giac2.png?raw=true)
-![tlin(sin(x)^3)](/screenshots/giac2.png?raw=true)
+![texpand(cos(a+b))](/screenshots/giac3.png?raw=true)
+![tlin(sin(x)^3)](/screenshots/giac4.png?raw=true)
 
 ## How does it work ?
 
