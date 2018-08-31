@@ -1,18 +1,24 @@
 # cas-discord
 
-This bots aims to integrate multiple CAS interfaces right into Discord.
+This bot aims to integrate the giac computer algebra system into Discord.
 
 ## Commands
 
-This bot uses the prefix `=`, but should not interfere with other bots with the same prefix (e.g. MathsBot).
 
-### `=giac <input>`
+
+### `@giac <input>`
 
 This is the main command: it runs giac with the specified input and returns stdout.
 
-## About giac.js
+This can also be invoked by using `@CAS` (or mention whatever user the bot is running as). When interacting with the bot in a DM channel, you can ommit the prefix.
 
-The file `giac.js` is a version of giac compiled with emscripten **by the giac team**. I copied it as-is without any modification. It is
-up to you to trust this file or not.
+### Sample output
 
-The original file is hosted [here](https://www-fourier.ujf-grenoble.fr/~parisse/giac.js)
+![zeros(x^2-x-2,x)](/screenshots/giac1.png?raw=true)
+![czeros(x^2+x+1)](/screenshots/giac2.png?raw=true)
+![texpand(cos(a+b))](/screenshots/giac2.png?raw=true)
+![tlin(sin(x)^3)](/screenshots/giac2.png?raw=true)
+
+## How does it work ?
+
+I created a docker image that takes giac input and spits out the output as base64-encoded png images. The bot then decodes these images and sends them.
