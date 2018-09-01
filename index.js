@@ -37,7 +37,7 @@ async function giacCommands(msg, commands) {
         '--network',
         'none',
         '-i',
-        'discord-cas/giacrenderer'
+        'giac-renderer'
     ]);
 
     let output = '';
@@ -59,7 +59,7 @@ async function giacCommands(msg, commands) {
     });
 
     giacrenderer.on('close', code => {
-        console.log(`giacrenderer exited with code ${code}`);
+        console.log(`giac-renderer exited with code ${code}`);
     });
 
     giacrenderer.stdin.write(commands, 'utf8');

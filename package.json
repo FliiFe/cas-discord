@@ -1,33 +1,33 @@
 {
-  "name": "cas-discord",
-  "version": "0.0.1",
-  "description": "A bot which provides cas functionalities",
-  "main": "index.js",
-  "scripts": {
-      "docker-patches": "cd ./docker/giac-custom && docker build . -t giac-custom",
-    "docker-renderer": "cd ./docker/giacrenderer && docker build . -t discord-cas/giacrenderer:latest",
-    "docker": "npm run docker-patches && npm run docker-renderer",
-    "forever": "forever start index.js",
-    "nodemon": "nodemon index.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/FliiFe/giac-discord.git"
-  },
-  "keywords": [
-    "giac",
-    "maths",
-    "cas",
-    "discord",
-    "bot"
-  ],
-  "author": "Théophile Cailliau (theophile.cailliau@gmail.com)",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/FliiFe/giac-discord/issues"
-  },
-  "homepage": "https://github.com/FliiFe/giac-discord#readme",
-  "dependencies": {
-    "discord.js": "^11.2.1"
-  }
+    "name": "cas-discord",
+    "version": "0.0.1",
+    "description": "A bot which provides cas functionalities",
+    "main": "index.js",
+    "scripts": {
+        "docker-patches": "cd ./docker/giac-custom && docker build . -t giac-custom",
+        "docker-renderer": "cd ./docker/giac-renderer && docker build . -t giac-renderer",
+        "docker": "npm run docker-patches && npm run docker-renderer",
+        "forever": "forever start index.js",
+        "nodemon": "nodemon index.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/FliiFe/giac-discord.git"
+    },
+    "keywords": [
+        "giac",
+        "maths",
+        "cas",
+        "discord",
+        "bot"
+    ],
+    "author": "Théophile Cailliau (theophile.cailliau@gmail.com)",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/FliiFe/giac-discord/issues"
+    },
+    "homepage": "https://github.com/FliiFe/giac-discord#readme",
+    "dependencies": {
+        "discord.js": "^11.2.1"
+    }
 }
