@@ -4,7 +4,9 @@
   "description": "A bot which provides cas functionalities",
   "main": "index.js",
   "scripts": {
-    "docker": "cd ./docker/giacrenderer && docker build . -t discord-cas/giacrenderer:latest",
+      "docker-patches": "cd ./docker/giac-custom && docker build . -t giac-custom",
+    "docker-renderer": "cd ./docker/giacrenderer && docker build . -t discord-cas/giacrenderer:latest",
+    "docker": "npm run docker-patches && npm run docker-renderer",
     "forever": "forever start index.js",
     "nodemon": "nodemon index.js"
   },
