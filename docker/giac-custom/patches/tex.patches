@@ -18,7 +18,7 @@ index ef7105c..76fc53a 100644
    gen _grad(const gen & args,GIAC_CONTEXT){
      if ( args.type==_STRNG && args.subtype==-1) return  args;
 diff --git a/src/intg.cc b/src/intg.cc
-index f03cd3c..fc2ede2 100755
+index f03cd3c..9292eda 100755
 --- a/src/intg.cc
 +++ b/src/intg.cc
 @@ -3635,6 +3635,10 @@ namespace giac {
@@ -32,6 +32,37 @@ index f03cd3c..fc2ede2 100755
  
    // called by approx_area
    double rombergo(const gen & f0,const gen & x, const gen & a_orig, const gen & b_orig, int n,GIAC_CONTEXT){
+@@ -5173,9 +5177,29 @@ namespace giac {
+     return sum(f,x,a,b,contextptr);
+   }
+ 
++  static string texprintassum(const gen & g,const char * s_orig,GIAC_CONTEXT){
++    string s("\\sum ");
++    if (g.type!=_VECT)
++      return s+gen2tex(g,contextptr);
++    vecteur v(*g._VECTptr);
++    int l(int(v.size()));
++    if (!l)
++      return s;
++    if (l==1)
++      return s+gen2tex(v.front(),contextptr);
++    if (l==2)
++      return s+"_{"+gen2tex(v.back(),contextptr)+"} "+gen2tex(v.front(),contextptr);
++    if (l==4)
++      return s+"_{"+gen2tex(v[1],contextptr)+" = "+gen2tex(v[2],contextptr)+"}^{"+gen2tex(v[3],contextptr)+"}"+gen2tex(v.front(),contextptr);
++    return s;
++  }
++
++
+   static const char _somme_s []="somme";
+-  static define_unary_function_eval_quoted (__somme,&_sum,_somme_s);
++  static define_unary_function_eval4_quoted (__somme,&_sum,_somme_s,0,&texprintassum);
+   define_unary_function_ptr5( at_somme ,alias_at_somme,&__somme,_QUOTE_ARGUMENTS,true);
++  static define_unary_function_eval4_quoted (__sum,&_sum,"sum",0,&texprintassum);
++  define_unary_function_ptr5( at_sum ,alias_at_sum,&__sum,_QUOTE_ARGUMENTS,true);
+ 
+   // innert form
+   gen _Sum(const gen & args,GIAC_CONTEXT) {
 diff --git a/src/subst.cc b/src/subst.cc
 index 42398d1..1ff5360 100755
 --- a/src/subst.cc
@@ -73,3 +104,19 @@ index 7c6711f..9b27510 100644
  
    static const char _isPrime_s[]="isPrime";
    static define_unary_function_eval (__isPrime,&_isprime,_isPrime_s);
+diff --git a/src/usual.cc b/src/usual.cc
+index ae0f4ef..25f7f0f 100755
+--- a/src/usual.cc
++++ b/src/usual.cc
+@@ -10189,9 +10189,9 @@ namespace giac {
+ #endif
+   define_unary_function_ptr5( at_Heaviside ,alias_at_Heaviside,&__Heaviside,0,true);
+ 
+-  const char _sum_s []="sum";
++  const char _sum_s []="sum2";
+   static define_unary_function_eval_quoted (__sum,&_sum,_sum_s);
+-  define_unary_function_ptr5( at_sum ,alias_at_sum,&__sum,_QUOTE_ARGUMENTS,true);
++  /* define_unary_function_ptr5( at_sum ,alias_at_sum,&__sum,_QUOTE_ARGUMENTS,true); */
+ 
+   gen fast_icontent(const gen & g){
+     if (g.type==_VECT){
