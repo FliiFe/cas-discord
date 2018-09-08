@@ -60,7 +60,7 @@ runcommands() {
     while read -r line; do
         latexcommand "$line" >"result$n.tex" 
         cat "result$n.tex" 1>&2
-        latex -interaction=nonstopmode -shell-escape "result$n.tex" 1>&2
+        latex -interaction=nonstopmode -shell-escape "result$n.tex" 1>/dev/null
         # pdflatex --shell-escape --enable-write18 "result$n.tex" 1>&2
         dvipng -D 200 -bg 'rgb 0.1725 0.1843 0.2' -o "result$n-%01d.png" "result$n.dvi" 1>&2
         mogrify -bordercolor '#2c2f33' -border 50x50 ./result$n-*.png 1>&2
@@ -74,21 +74,24 @@ runcommands() {
 # Get the output of one command
 runcommand() {
     : > output
-    echo "$1" >> input
+    printf "Command: " 1>&2
+    echo "$1" | tee -a input 1>&2
     # Wait for prompt to return
     waitforprompt
-    echo $(tr -dc '[:print:]' <output | sed 's/prompt#>//g' | sed -r s/^verbatim://g)
+    printf "Result: " 1>&2
+    echo $(tr -dc '[:print:]' <output | sed 's/prompt#>//g' | sed -r 's/^verbatim://g') | tee /dev/stderr
 }
 
 # Get the latex representation of the nonevaluated input
 get_noeval() {
     cmd="$1"
-    echo "$cmd" 1>&2
-    eval_level=$(runcommand "eval_level()" | grep -o '[0-9]*') # Get only the number
-    runcommand "eval_level(0)" >/dev/null
-    result=$(runcommand "$cmd")
+    echo "Running '$cmd' with no evaluation" 1>&2
+    # eval_level=$(runcommand "eval_level()" | grep -o '[0-9]*') # Get only the number
+    # echo "Eval level: "$eval_level 1>&2
+    # runcommand "eval_level(0)" >/dev/null
+    result=$(runcommand "quote( $cmd")
     # restore eval level
-    runcommand "eval_level(${eval_level})" >/dev/null
+    # runcommand "eval_level(${eval_level})" >/dev/null
     echo $result
 }
 
@@ -109,13 +112,12 @@ intermediate_latex() {
 latexcommand() {
     latexheader
     line=$1
-    echo "Processing command: $line" 1>&2
+    # echo "Processing command: $line" 1>&2
     content=$(runcommand "$line")
-    # echo "\\begin{lstlisting}"
-    print_latex_output "$(get_noeval "$line")" | tee /dev/stderr
+
+    print_latex_output "$(get_noeval "$line")" # | tee /dev/stderr
     intermediate_latex
-    # echo "\\end{lstlisting}\\rule[0.3\\baselineskip]{\\linewidth}{0.5pt}"
-    # echo "\\rule[0.3\\baselineskip]{\\linewidth}{0.5pt}"
+
     type=$(echo "$content" | head -n 1 | cut -d: -f1)
     if [ "$type" = "verbatim" ]; then
         value=$(echo "$content" | sed s/^verbatim://g | sed 's/%/\\%/g')

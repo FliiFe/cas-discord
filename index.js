@@ -48,7 +48,7 @@ async function giacCommands(msg, commands) {
 
     giacrenderer.stdout.on('data', data => {
         output += data;
-        process.stdout.write(data);
+        // process.stdout.write(data);
         if (output.indexOf('\n') >= 0) {
             const pictures = output.split('\n');
             output = pictures[pictures.length - 1];
