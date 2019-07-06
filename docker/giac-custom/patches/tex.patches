@@ -105,10 +105,31 @@ index 7c6711f..9b27510 100644
    static const char _isPrime_s[]="isPrime";
    static define_unary_function_eval (__isPrime,&_isprime,_isPrime_s);
 diff --git a/src/usual.cc b/src/usual.cc
-index ae0f4ef..25f7f0f 100755
+index ae0f4ef..1c3563e 100755
 --- a/src/usual.cc
 +++ b/src/usual.cc
-@@ -10189,9 +10189,9 @@ namespace giac {
+@@ -7009,6 +7009,11 @@ namespace giac {
+       return feuille.print(contextptr)+"!";
+     return "("+feuille.print(contextptr)+")!";
+   }
++  static string texprintasfactorial(const gen & feuille,const char * sommetstr,GIAC_CONTEXT){
++    if (feuille.type==_IDNT || ((feuille.type<=_DOUBLE_ || feuille.type==_FLOAT_ || feuille.type==_REAL) && is_positive(feuille,contextptr)))
++      return feuille.print(contextptr)+"!";
++    return "\\left("+feuille.print(contextptr)+"\\right)!";
++  }
+   static gen d_factorial(const gen & args,GIAC_CONTEXT){
+     return Psi(args+1,0)*_factorial(args,contextptr);
+   }
+@@ -7027,7 +7032,7 @@ namespace giac {
+     return factorial((unsigned long int) args.val);
+   }
+   static const char _factorial_s []="factorial";
+-  static define_unary_function_eval5 (__factorial,&_factorial,D_at_factorial,_factorial_s,&printasfactorial,0);
++  static define_unary_function_eval5_quoted (__factorial,&_factorial,D_at_factorial,_factorial_s,&printasfactorial,&texprintasfactorial);
+   define_unary_function_ptr5( at_factorial ,alias_at_factorial,&__factorial,0,true);
+ 
+   gen double_is_int(const gen & g,GIAC_CONTEXT){
+@@ -10189,9 +10194,9 @@ namespace giac {
  #endif
    define_unary_function_ptr5( at_Heaviside ,alias_at_Heaviside,&__Heaviside,0,true);
  
